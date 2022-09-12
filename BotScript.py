@@ -13,6 +13,7 @@ auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
 auth.set_access_token(key, secret)
 api = tweepy.API(auth, wait_on_rate_limit=True, retry_count=10, retry_delay=5, retry_errors=set([503]))
 
+## Defining tweet id storage commands
 FILE_NAME = "last_seen.txt"
 
 def read_last_seen(FILE_NAME):
@@ -271,6 +272,7 @@ stadiums = {'Arizona Diamondbacks': 'Chase Field',
 'Washington Nationals': 'Nationals Park'}
 
 def NextGame():
+   '''Finds game info for Sox next game on an off day'''
     today = datetime.date.today()
     dateformat =  str(today.year) + "-" + str(today.month).zfill(2) + "-" + str(today.day).zfill(2)
     game = fullschedule[dateformat]
@@ -282,6 +284,7 @@ def NextGame():
     return game[0]
 
 def GameDay():
+   '''Tweets out game info on a gameday'''
     datetimeshit = datetime.datetime.now()
     str1 = str(datetimeshit).split(' ')
     time = str1[1]
@@ -353,6 +356,7 @@ def GameDay():
             store_done(FILE_NAME3)
 
 def DirtyWater():
+   '''Tweets when the Sox win or lose'''
    tweets = api.home_timeline(since_id = read_last_seen(FILE_NAME))
    for tweet in reversed(tweets):
       if 'FINAL' in tweet.text:
@@ -398,6 +402,7 @@ def DirtyWater():
             api.update_status(status = reply, in_reply_to_status_id = losstweet.id , auto_populate_reply_metadata=True)
 
 def HomeRun():
+   '''Tweets when the Sox hit a home run'''
    tweets = api.home_timeline(since_id = read_last_seen(FILE_NAME))
    for tweet in reversed(tweets):
       if '- Boston' in tweet.text:
@@ -509,6 +514,7 @@ def HomeRun():
              store_last_seen(FILE_NAME, tweet.id)
 
 def ShitTalk():
+   '''Tweets when the Sox' opponent hits a home run'''
     tweets = api.home_timeline(since_id = read_last_seen(FILE_NAME))
     today = datetime.date.today()
     dateformat =  str(today.year) + "-" + str(today.month).zfill(2) + "-" + str(today.day).zfill(2)
@@ -562,6 +568,7 @@ def ShitTalk():
             store_last_seen(FILE_NAME, tweet.id)
 
 def Starting():
+   '''Tweets out the Red Sox starting line-up on gameday'''
     tweets = api.home_timeline(since_id = read_last_seen(FILE_NAME))
     for tweet in reversed(tweets):
         if "BOS Lineup" in tweet.text:
@@ -591,6 +598,7 @@ def Starting():
                 api.update_status("Starting Lineup for your " + year + " Boston Red Sox: " + mo + "/" + day + "/" + year + "\n\n" + lineup + "\n\n#RedSox #DirtyWater #MediasRojas")
 
 def Draft():
+   '''Tweets out each Sox draft pick'''
     def format(tweet):
         today = datetime.date.today()
         year = str(today.year)
@@ -613,6 +621,7 @@ def Draft():
             store_last_seen(FILE_NAME, pick.id)
 
 while True:
+   '''Runs each command indefinitely'''
    GameDay()
    DirtyWater()
    HomeRun()
